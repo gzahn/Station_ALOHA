@@ -47,3 +47,10 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# taxonomy databases
+taxonomy/
+
+# sequence data
+data/raw/
+data/clean/
