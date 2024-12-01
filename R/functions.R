@@ -1,4 +1,26 @@
 
+# ra() ####
+# relative abundance transformation
+ra <- function(x){x/sum(x)}
+
+# plot_bar2() ####
+# phyloseq bar plot without lines for each ASV
+plot_bar2 <- function (physeq, x = "Sample", y = "Abundance", fill = NULL, 
+          title = NULL, facet_grid = NULL, width = 0.9) 
+{
+  mdf = psmelt(physeq)
+  p = ggplot(mdf, aes_string(x = x, y = y, fill = fill))
+  p = p + geom_bar(stat = "identity", position = "stack", width = width)
+  p = p + theme(axis.text.x = element_text(angle = -90, hjust = 0))
+  if (!is.null(facet_grid)) {
+    p <- p + facet_grid(facet_grid)
+  }
+  if (!is.null(title)) {
+    p <- p + ggtitle(title)
+  }
+  return(p)
+}
+
 # remove_primers() ####
 # Function to remove primers from raw amplicon files
 
@@ -13,7 +35,7 @@ remove_primers <- function(directory, # where raw sequences live
   library(purrr); packageVersion("purrr")
   library(Biostrings); packageVersion("Biostrings")
   library(ShortRead); packageVersion("ShortRead")
-  library(parallels)
+  library(parallel)
   
   
   # File parsing
@@ -116,4 +138,30 @@ run_itsxpress <- function(directory, # where cutadapted reads live
     system(command = itsxpress)
   }
   
+}
+
+# clean_ps_taxonomy() ####
+# get rid of the annoying "k__" stuff at the beginning of taxonomy assignments for each tax level
+# these are usually only an issue with fungal assignments (e.g., UNITE format)
+
+
+clean_ps_taxonomy <- function(physeq,
+                              n.ranks=7 # number of taxonomic ranks in physeq object
+){
+  
+  # get rank names
+  ranks <- rank_names(physeq)
+  prefix <- str_sub(ranks,end=1) %>% str_to_lower() %>% paste0("__")
+  
+  x <- tax_table(physeq)@.Data
+  
+  for(i in seq_along(ranks)){
+    x[,i] <- x[,i] %>% str_remove(prefix[i])
+  }
+  
+  out <- phyloseq(otu_table(physeq,taxa_are_rows = FALSE),
+                  tax_table(x),
+                  sample_data(physeq))
+  
+  return(out)
 }

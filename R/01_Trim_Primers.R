@@ -22,6 +22,12 @@ path_28S <- "./data/raw/StALOHA_28S"
 # primer sequences
 its1f <- "CTTGGTCATTTAGAGGAAGTAA"
 its2 <- "GCTGCGTTCTTCATCGATGC"
+# ssu
+SSU_18S82F <- "GAAACTGCGAATGGCTC"
+SSU_Ek516R <- "ACCAGACTTGCCCTCC"
+# LSU 
+LSU_ITS4ngsF <- "GCATATCAATAAGCGSAGGA"
+LSU_LF402R <- "TTCCCTTTYARCAATTTCAC"
 
 # TRIM PRIMERS ####
 
@@ -29,6 +35,7 @@ its2 <- "GCTGCGTTCTTCATCGATGC"
 # those read files can be deleted afterward since the "cutadapt" directory will have the 
 # reads used downstream for DADA2
 
+## ITS ####
 remove_primers(directory = path_its,
                fwd_pattern = "_R1_",
                rev_pattern = "_R2_",
@@ -37,6 +44,28 @@ remove_primers(directory = path_its,
 # remove intermediate files if you want
 list.files(file.path(path_its,"filtN"),full.names = TRUE) %>% 
   file.remove()
+
+## SSU ####
+remove_primers(directory = path_18S,
+               fwd_pattern = "_R1_",
+               rev_pattern = "_R2_",
+               fwd_primer = SSU_18S82F,
+               rev_primer = SSU_Ek516R)
+# remove intermediate files if you want
+list.files(file.path(path_18S,"filtN"),full.names = TRUE) %>% 
+  file.remove()
+
+## LSU ####
+remove_primers(directory = path_28S,
+               fwd_pattern = "_R1_",
+               rev_pattern = "_R2_",
+               fwd_primer = LSU_ITS4ngsF,
+               rev_primer = LSU_LF402R)
+# remove intermediate files if you want
+list.files(file.path(path_28S,"filtN"),full.names = TRUE) %>% 
+  file.remove()
+
+
 
 # EXTARCT ITS1 ####
 path_its_cutadapt <- file.path(path_its,"cutadapt")
